@@ -4,14 +4,49 @@ import { useRouter } from "next/navigation";
 import HomeCard from "./HomeCard";
 import React, { useState } from "react";
 import MeetingModal from "./MeetingModal";
+import { useUser } from "@clerk/nextjs";
+import { Call, useStreamVideoClient } from "@stream-io/video-react-sdk";
+
+const initialValues = {
+  dateTime: new Date(),
+  description: "",
+  link: "",
+};
 
 const MeetingTypeList = () => {
   const router = useRouter();
   const [meetingState, setMeetingState] = useState<
     "isScheduleMeeting" | "isJoiningMeeting" | "isInstantMeeting" | undefined
   >(undefined);
+  const [values, setValues] = useState(initialValues);
+  const [callDetail, setCallDetail] = useState<Call>();
+  const { user } = useUser();
+  const client = useStreamVideoClient;
 
-  const createMeeting = () => {};
+  const createMeeting = async () => {
+    if (!client || !user) return;
+
+    try {
+      const id = crypto.randomUUID();
+      const call = client.call("default", id);
+
+      if (!call) throw new Error("Failed to create new call");
+
+      const startsAt =
+        values.dateTime.toISOString() || new Date(Date.now()).toISOString();
+      const description = values.description || "Instant Meeting";
+
+      await call.getOrCreate({
+        data: {
+          starts_at: startsAt,
+          custom: {
+            description,
+          },
+        },
+      });
+      setCallDetail(call);
+    } catch (error) {}
+  };
 
   return (
     <section className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">

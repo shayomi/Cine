@@ -20,8 +20,8 @@ const MeetingTypeList = () => {
   >(undefined);
   const [values, setValues] = useState(initialValues);
   const [callDetail, setCallDetail] = useState<Call>();
+  const client = useStreamVideoClient();
   const { user } = useUser();
-  const client = useStreamVideoClient;
 
   const createMeeting = async () => {
     if (!client || !user) return;

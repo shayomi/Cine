@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import MeetingModal from "./MeetingModal";
 import { useUser } from "@clerk/nextjs";
 import { Call, useStreamVideoClient } from "@stream-io/video-react-sdk";
+import { useToast } from "./ui/use-toast";
 
 const initialValues = {
   dateTime: new Date(),
@@ -14,6 +15,8 @@ const initialValues = {
 };
 
 const MeetingTypeList = () => {
+  const { toast } = useToast();
+
   const router = useRouter();
   const [meetingState, setMeetingState] = useState<
     "isScheduleMeeting" | "isJoiningMeeting" | "isInstantMeeting" | undefined
@@ -27,6 +30,12 @@ const MeetingTypeList = () => {
     if (!client || !user) return;
 
     try {
+      if (!values.dateTime) {
+        toast({
+          title: "Please select a date and time",
+        });
+        return;
+      }
       const id = crypto.randomUUID();
       const call = client.call("default", id);
 
@@ -45,7 +54,20 @@ const MeetingTypeList = () => {
         },
       });
       setCallDetail(call);
-    } catch (error) {}
+
+      if (!values.description) {
+        router.push(`/meeting/${call.id}`);
+      }
+
+      toast({
+        title: "Meeting Created",
+      });
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Failed to create meeting",
+      });
+    }
   };
 
   return (
@@ -55,7 +77,7 @@ const MeetingTypeList = () => {
         title="New Meeting"
         description="Start an instant meeting"
         className="bg-orange-1"
-        handleClick={() => setMeetingState("isInstantMeeting")}
+        handleClick={() => setMeetingState("isJoiningMeeting")}
       />
       <HomeCard
         img="/icons/join-meeting.svg"

@@ -72,4 +72,4 @@ bash**
 - This project is licensed under the MIT License. See the LICENSE file for details.
 
 **Contact**
-- For any inquiries or feedback, please contact your-email@example.com.
+- For any inquiries or feedback, please contact steve.legion94@gmail.com.
